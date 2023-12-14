@@ -1,0 +1,4 @@
+/__pycache__
+vs_lda/data/*
+vs_lda/models/*
+__pycache__
