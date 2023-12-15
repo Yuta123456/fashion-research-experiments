@@ -10,12 +10,11 @@ from torchvision import transforms
 import torch
 import os
 import sys
-from sklearn.metrics import roc_auc_score, roc_curve
 import matplotlib.pyplot as plt
 import torch
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from vs_lda.entimate import proposal_infer_batch
+from vs_lda.entimate import proposal_infer_batch, proposal_infer_only_images_batch
 
 # from vs_lda.entimate import proposal_infer, proposal_infer_batch
 from PIL import Image
@@ -46,22 +45,31 @@ with open(
 ) as f:
     to_img_path_caption = json.load(f)
 ids = []
-captions = []
+# captions = []
 images = []
 vectors = {}
 BATCH_SIZE = 10
-for key, v in list(to_img_path_caption.items()):
+cnt = 0
+targets = list(to_img_path_caption.items())
+for key, v in targets:
     ids.append(key)
-    captions.append(v[1])
+    cnt += 1
+    if cnt % 1000 == 0:
+        print(f"{cnt * 100 / len(targets)} %")
     images.append(to_image(v[0]))
-images = torch.stack(images).to(torch.device("cuda"))
+images = torch.stack(images)
+print(len(images), len(ids))
 for i in range(0, len(ids), BATCH_SIZE):
+    if i % 10 * BATCH_SIZE == 0:
+        print(f"{i * 100 / len(ids)} %")
     s = i
     e = min(i + BATCH_SIZE, len(ids))
-    pred = proposal_infer_batch(images[s:e], captions[s:e])
-    for j in range(s, e):
-        itemId = ids[j]
-        vectors[itemId] = pred[j].tolist()
 
-with open("D:/M1/fashion/experiments/vs_lda/data/vectors.json", "w") as f:
+    pred = proposal_infer_only_images_batch(images[s:e].to(torch.device("cuda")))
+    pred_ids = ids[s:e]
+    for j in range(len(pred)):
+        itemId = pred_ids[j]
+        vectors[itemId] = pred[j].to("cpu").tolist()
+
+with open("D:/M1/fashion/experiments/vs_lda/data/vectors-image-only.json", "w") as f:
     json.dump(vectors, f)

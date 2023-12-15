@@ -9,9 +9,11 @@ import glob
 import os
 import sys
 
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
+from vs_lda.utils import filter_basic_items
 from lda_model.preProcessing.preprocessing import preprocessing
 from lda_model.util.is_stopword import is_stopword
 from lda_model.util.parse_sentence import parse_sentence
@@ -56,8 +58,8 @@ item_id_to_img_path_caption = {}
 for fp in filepaths:
     json_dict = pd.read_json(fp, encoding="shift-jis")
     parent_dir = os.path.dirname(fp)
-    items = []
-    for item in filter(is_target_category, json_dict["items"]):
+    items = json_dict["items"]
+    for item in filter(is_target_category, items):
         itemId = item["itemId"]
         image_path = parent_dir + "/" + str(itemId) + "_m.jpg"
         try:

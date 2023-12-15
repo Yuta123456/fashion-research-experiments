@@ -84,20 +84,23 @@ for fp in filepaths:
         category = get_category(item)
         items[category].append(item)
 
+# print(len(items["tops"]), len(items["bottoms"]), len(items["shoes"]))
 # D:/M1/fashion/experiments/vs_lda/data/negative_coordinates
-for i in range(10000):
-    tops = random.sample(items["tops"], 1)[0]
-    bottoms = random.sample(items["bottoms"], 1)[0]
-    shoes = random.sample(items["shoes"], 1)[0]
-    coordinate = {"items": [tops, bottoms, shoes]}
-    with open(
-        f"D:/M1/fashion/experiments/vs_lda/data/negative_coordinates/{random.randint(10000000, 1000000000)}.json",
-        "w",
-    ) as f:
-        json.dump(
-            coordinate,
-            f,
-            ensure_ascii=False,
-        )
-    if i % 100 == 0:
-        print(f"{i / 100}%終わり")
+
+
+# for i in range(10000):
+#     tops = random.sample(items["tops"], 1)[0]
+#     bottoms = random.sample(items["bottoms"], 1)[0]
+#     shoes = random.sample(items["shoes"], 1)[0]
+#     coordinate = {"items": [tops, bottoms, shoes]}
+#     with open(
+#         f"D:/M1/fashion/experiments/vs_lda/data/negative_coordinates/{random.randint(10000000, 1000000000)}.json",
+#         "w",
+#     ) as f:
+#         json.dump(
+#             coordinate,
+#             f,
+#             ensure_ascii=False,
+#         )
+#     if i % 100 == 0:
+#         print(f"{i / 100}%終わり")

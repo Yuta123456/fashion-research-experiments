@@ -1,10 +1,12 @@
 import os
 import sys
 
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 
+from vs_lda.models.ImageEncoder import ImageEncoder
 from vs_lda.models.FashionItemEncoder import FashionItemEncoder
 import torch
 from PIL import Image
@@ -18,13 +20,21 @@ if torch.cuda.is_available():
 else:
     device = torch.device("cpu")  # CPUデバイスを取得
 
-model = FashionItemEncoder().to(device)
+# model = FashionItemEncoder().to(device)
+# model.load_state_dict(
+#     torch.load(
+#         "D:/M1/fashion/experiments/vs_lda/models/model_compatibility_2023-11-11.pth"
+#     )
+# )
+
+model = ImageEncoder(256).to(device)
 model.load_state_dict(
     torch.load(
-        "D:/M1/fashion/experiments/vs_lda/models/model_compatibility_2023-11-11.pth"
+        # "D:/M1/fashion/experiments/vs_lda/models/image-only-12-14.pth"
+        "D:/M1/fashion/experiments/vs_lda/models/model_compatibility_2023-12-15_margin100_image.pth"
+        # "D:/M1/fashion/experiments/vs_lda/models/model_compatibility_2023-12-14.pth"
     )
 )
-
 transform = transforms.Compose(
     [
         transforms.Resize(256),
@@ -60,6 +70,26 @@ def proposal_infer(image_path, caption):
 def proposal_infer_batch(images, captions):
     with torch.no_grad():
         pred = model(images, captions)
+
+    return pred
+
+
+def proposal_infer_only_image(image_path):
+    image = Image.open(image_path)
+    if image.mode != "RGB":
+        image = image.convert("L")
+        image = Image.merge("RGB", [image] * 3)
+    input_image = transform(image).to(device)
+    image = torch.unsqueeze(input_image, 0)
+    with torch.no_grad():
+        pred = model(image)
+
+    return pred
+
+
+def proposal_infer_only_images_batch(images):
+    with torch.no_grad():
+        pred = model(images)
 
     return pred
 
